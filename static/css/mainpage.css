@@ -4,7 +4,9 @@ html, body{
     margin:0;
 }
 
+/* Header */
 .menu-bar{
+    /* border : black solid; */
     display: flex;
     justify-content: space-between;
     height: 10%;
@@ -12,113 +14,296 @@ html, body{
     background-color: rgb(153,200,173);
 }
 
+/* Header Logo */
 a{
-    color: #fff; 
-    text-decoration: none; 
-    outline: none; 
+    color: #fff;
+    text-decoration: none;
+    outline: none;
 }
-
 a:hover, a:active {
     text-decoration: none;
     color:#fff;
     background-color:none;
 }
-
 .main-logo {
+    /* border: black solid; */
     display: flex;
     height: 100%;
     align-items: center;
-    font-size: 50px;
+    font-size: 38px;
     font-weight: 800;
     color:white;
 }
-
 .main-logo > img{
-    width: 90px;
-    height: 90px;
-    margin: 0 30px 0 60px;
+    width: 50px;
+    height: 50px;
+    margin: 15px 15px 15px 30px;
 }
 
+/* Header Button */
 .access-management{
+    /* border : black solid; */
     display: flex;
     justify-content: space-between;
-    height: 100%;
+    height: 60%;
     align-items: center;
-    margin-right : 20px;
+    margin : auto 20px auto;
 }
-
 .access-management > div > button {
-    width: 150px;
-    height: 70px;
+    width: 80px;
+    height: 40px;
     background-color: white;
-    font-size: 25px;
-    margin : 0 20px;
-    border-radius: 20px;
-    border : none; 
+    font-size: 16px;
+    margin : 0 5px;
+    border-radius: 10px;
+    border : none;
     color : black;
 }
 
+/* Body */
 .main-div{
+    /* border : red solid; */
     height:90%;
     width: 100%;
     display: flex;
+    gap : 10px;
     align-items: center;
     justify-content: center;
 }
 
-.restaurant-info {
-    border-radius: 20px;
-    border: none;
-    background-color: rgb(153,200,173);
-    width: 40%;
-    height: 80%;
-    margin:5% 2.5%;
-    overflow-y: scroll;
-    overflow-y: overlay;
-}
-
+/* Restaurant List */
 .restaurant-list{
-
-    border-radius: 20px 10px 10px 20px;
-    border: none;
+    border-radius: 10px;
+    /* border: black solid; */
     background-color: rgb(153,200,173);
-    width: 30%;
-    height: 78%;
-    margin:5% 2.5%;
+    width: 360px;
+    height: 96%;
+    /* margin:5% 2.5%; */
     overflow-y: overlay;
-    padding: 1% 1% 0 1%;
+    padding: 10px 10px 0 10px;
     justify-content: center;
 }
-
 ::-webkit-scrollbar {
-    width: 15px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background-color: #f1f1f1;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background-color: #888;
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    /* background-color: #F1F1F1; */
+    /* background-color: rgb(153,200,173); */
+    background-color: none;
+    margin: 5px;
+}
+::-webkit-scrollbar-thumb {
+    background-color: #888787;
     border-radius: 5px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
-  }
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: #706f6f;
+}
 
+/* Restaurant List Card */
 .restaurant-info-mini{
-    border-radius: 20px;
-    padding:3%;
+    border-radius: 10px;
+    padding:5px 10px;
     display: flex;
     background-color: white;
     width: 93%;
     height: 20%;
     margin-bottom : 3%;
 }
-
+.restaurant-img-mini {
+    border : lightgray solid 1px;
+    border-radius: 10px;
+    height : 120px;
+    width : 120px;
+    max-height: 90%;
+    margin : auto 5px;
+}
 .info-mini{
-    font-size: 22px;
+    /* border : orange solid; */
+    /* font-size: 22px; */
     align-items: center;
-    margin : auto 25px;
+    margin : auto 5px auto 10px;
+    width: 55%;
+}
+.mini-name {
+    font-size : 22px;
+    font-weight: bold;
+    /* margin-top: 20px; */
+}
+.mini-category {
+    font-size: 16px;
+    font-weight: lighter;
+    color: #a3a2a2;
+    margin-top: 5px;
+}
+.mini-rating-naver {
+    font-size: 14px;
+    color: #2DB400;
+    margin-top: 5px;
+}
+.mini-rating-jungle {
+    font-size: 14px;
+    color: #3ca474;
+    margin-top: 5px;
+}
+
+/* Restaurant Detail */
+.restaurant-info {
+    /* border : blue solid; */
+    border-radius: 10px;
+    background-color: rgb(153,200,173);
+    width: 380px;
+    height: 96%;
+    /* margin:5% 2.5%; */
+    padding: 1% 1% 0 1%;
+    overflow-y: scroll;
+    overflow-y: overlay;
+}
+.restaurant-info-card{
+    border-radius: 10px;
+    padding:3%;
+    background-color: white;
+    width: 93%;
+    height: fit-content;
+    margin-bottom : 3%;
+}
+/* .detail-wrap {
+    margin: 10px auto;
+    align-content: center;
+} */
+.detail-image {
+    border : lightgray solid 1px;
+    border-radius: 10px;
+    height : 140px;
+    width : 140px;
+    margin: 15px auto 0 auto;
+    display: block;
+}
+.detail-title {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: baseline;
+    margin-top: 15px;
+}
+.detail-name {
+    font-size : 24px;
+    font-weight: bold;
+}
+.detail-category {
+    font-size: 18px;
+    font-weight: lighter;
+    color: #a3a2a2;
+}
+.rating {
+    /* border : green solid 2px; */
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 5px;
+    align-items: center;
+}
+.rating-naver {
+    color: #2DB400;
+}
+.rating-jungle {
+    color: #3ca474;
+}
+.divider {
+    color: #dddcdc;
+}
+.more-info {
+    /* border: skyblue solid 2px; */
+    width: fit-content;
+    margin: 10px auto 15px auto;
+    display: block;
+    padding: 0 30px 0 0;
+}
+.address,.contact {
+    display: flex;
+    gap: 10px;
+    color: #575656;
+    font-size: 16px;
+    margin-top: 5px;
+}
+.reviews {
+    border-radius: 10px;
+    padding:3%;
+    background-color: white;
+    width: 93%;
+    height: fit-content;
+    margin-bottom : 3%;
+}
+.reviews-title {
+    font-weight: bold;
+    font-size: 20px;
+    margin: 5px 0 5px 5px;
+    display: inline-block;
+}
+.reviews-count {
+    color: #3ca474;
+    font-size: 17px;
+    /* font-weight: bold; */
+    display: inline-block;
+}
+.review-post-title {
+    /* border: black solid; */
+    font-size: 16px;
+    margin: 10px 5px ;
+    display: inline-block;
+    /* color: #3ca474; */
+}
+#rating_bar {
+    /* border: purple solid; */
+    /* margin: 5px; */
+    display: inline-block;
+    display: inline;
+    unicode-bidi: bidi-override;
+    direction: rtl;
+    padding: 8px 0 0 0;
+    vertical-align: middle;
+}
+#rating_bar>span:before {
+    content: '★';
+    color: #c7c5c5;
+    cursor: pointer;
+    font-size: 26px;
+}
+#rating_bar>span:hover:before,
+#rating_bar span:hover~span:before {
+    color: #4bce32; 
+}
+textarea {
+    border-radius: 10px;
+    border: #dddcdc solid 2px;
+    width: 290px;
+    vertical-align: middle;
+}
+.review-post > button {
+    height: 66px;
+    width: 48px;
+    border-radius: 10px;
+    border: #3ca474 2px solid;
+    background-color: #3ca474;
+    color: white;
+}
+hr {
+    border: 0;
+    height: 2px;
+    background: #dddcdc;
+    margin: 15px 0;
+}
+.review-name {
+    margin: 15px 0 5px 5px;
+    font-size: 16px;
+    /* font-weight: bold; */
+}
+.review-text {
+    border-radius: 10px;
+    background-color: #eeeeee ;
+    font-size: 14px;
+    /* border: #dddcdc solid 2px; */
+    padding: 20px 15px;
+    margin-bottom: 10px;
+    min-height: 38px;
 }
