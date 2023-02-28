@@ -2,15 +2,7 @@ from cgitb import text
 from lib2to3.pgen2 import driver
 from bson import ObjectId
 from pymongo import MongoClient
-from flask import Flask, render_template, jsonify, request
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
-import requests
-from bs4 import BeautifulSoup
-from playwright.sync_api import Playwright, sync_playwright
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt_identity, jwt_required
 import datetime
 import hashlib
@@ -29,7 +21,7 @@ db = client.jungleroad
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return redirect(url_for('/api/v1/restaurants'))
 
 
 @app.route("/api/v1/restaurants/", methods=['GET'])
@@ -58,6 +50,7 @@ def read(id):
         review_ids.append(str(review_data["_id"]))
 
     reviews = list(db.reviews.find({}, {"_id": False}))
+    size = len(reviews)
     is_mine = []
     for review in reviews:
         userId = review['userId']
@@ -67,7 +60,7 @@ def read(id):
         else:
             is_mine.append(False)
     print(is_mine)
-    return jsonify({"restaurant_info": restaurant_info, "review_ids": review_ids, "reviews": reviews, "is_mine": is_mine}), 200
+    return jsonify({"restaurant_info": restaurant_info, "review_ids": review_ids, "reviews": reviews, "is_mine": is_mine, 'size': size}), 200
 
 
 """ 
@@ -75,21 +68,22 @@ TODO :
     - 기타 회원정보 입력받기 
     - 프론트에서 암호화된 비밀번호를 받기 
 """
-
-
 @app.route("/api/v1/users", methods=["POST"])
 def register():
-    new_user = request.get_json()  # store the json body request
+    name = request.form['name']
+    username = request.form['username']
+    password = request.form['password']
+
     # Creating Hash of password to store in the database
-    new_user["password"] = hashlib.sha256(
-        new_user["password"].encode("utf-8")).hexdigest()  # encrpt password
+    password = hashlib.sha256(
+        password.encode("utf-8")).hexdigest()  # encrpt password
     # Checking if user already exists
     # check if user exist
-    doc = db.users.find_one({"username": new_user["username"]})
+    doc = db.users.find_one({"username": username})
     # If not exists than create one
     if not doc:
         # Creating user
-        db.users.insert_one(new_user)
+        db.users.insert_one({'name':name, 'username':username, 'password':password})
         return jsonify({'msg': 'User created successfully'}), 201
     else:
         return jsonify({'msg': 'Username already exists'}), 409
@@ -136,11 +130,16 @@ def refresh():
 @jwt_required()
 def postReview():
     current_user = get_jwt_identity()
+
     user_id = db.users.find_one({'username': current_user})['_id']
-    new_review = request.get_json()
-    current_restaurant = new_review['restaurant']
-    review_rating = new_review['rating']
-    review_text = new_review['text']
+
+    restaurant = request.form['restaurant']
+    rating = request.form['rating']
+    text = request.form['text']
+
+    current_restaurant = restaurant
+    review_rating = rating
+    review_text = text
     now = datetime.datetime.now()
     doc = {"userId": user_id, "rating": review_rating, "text": review_text,
            "created": now, "restaurantId": current_restaurant}
@@ -151,20 +150,18 @@ def postReview():
 @app.route('/api/v1/reviews', methods=['PATCH'])
 @jwt_required()
 def editReview():
-    patch_details = request.get_json()
-    review_id = patch_details['reviewId']
-    new_rating = patch_details['rating']
-    new_text = patch_details['text']
+    review_id = request.form['reviewId']
+    rating = request.form['rating']
+    text = request.form['text']
     db.reviews.update_one({'_id': review_id}, {
-        '$set': {"rating": new_rating, "text": new_text}})
+        '$set': {"rating": rating, "text": text}})
     return jsonify({'msg': 'Review edited successfully'}), 201
 
 
 @app.route('/api/v1/reviews', methods=['DELETE'])
 @jwt_required()
 def deleteReview():
-    patch_details = request.get_json()
-    review_id = patch_details['reviewId']
+    review_id = request.form['reviewId']
     db.reviews.delete_one({'_id': review_id})
     return jsonify({'msg': 'Review deleted successfully'}), 201
 
