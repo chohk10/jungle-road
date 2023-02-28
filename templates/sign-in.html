@@ -20,7 +20,7 @@
           },
           success: function (result) {
             localStorage.setItem("access_token", result["access_token"]);
-            home();
+            location.replace("/");
           },
         });
 
@@ -29,7 +29,9 @@
             type: "GET",
             url: "/",
             data: {},
-            success: function () {},
+            success: function () {
+              alert("로그인 성공!");
+            },
           });
         }
       }

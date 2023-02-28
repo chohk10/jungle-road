@@ -21,7 +21,7 @@ db = client.jungleroad
 
 @app.route("/")
 def index():
-    return redirect(url_for('/api/v1/restaurants'))
+    return render_template("index.html")
 
 
 @app.route("/api/v1/restaurants/", methods=['GET'])
@@ -83,13 +83,19 @@ def register():
     # If not exists than create one
     if not doc:
         # Creating user
-        db.users.insert_one({'name':name, 'username':username, 'password':password})
+        db.users.insert_one(
+            {'name': name, 'username': username, 'password': password})
         return jsonify({'msg': 'User created successfully'}), 201
     else:
         return jsonify({'msg': 'Username already exists'}), 409
 
 
 """ TODO : 프론트에서 암호화해서 보내준 비빌번호끼리 비교"""
+
+
+@app.route("/sign-up")
+def signUpForm():
+    return render_template("sign-up.html")
 
 
 @app.route("/sign-in")
@@ -114,7 +120,7 @@ def login():
             refresh_token = create_refresh_token(
                 identity=user_from_db['username'])  # Create JWT Refresh Token
             # Return Token
-            return jsonify({'access_token':access_token, 'refresh_token':refresh_token}), 200
+            return jsonify({'access_token': access_token, 'refresh_token': refresh_token}), 200
     return jsonify({'msg': 'The username or password is incorrect'}), 401
 
 
