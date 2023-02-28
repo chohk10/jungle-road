@@ -8,6 +8,29 @@
     />
     <title>정글로드</title>
     <link href="../static/css/mainpage.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        access_token = localStorage.getItem("access_token");
+        if (access_token != null) {
+          // xxx님 반갑습니다 띄우기
+        } else {
+          // 로그인, 회원가입 버튼 띄우기
+        }
+      });
+
+      function profileName(access_token) {
+        $.ajax({
+          type: "GET",
+          url: "/api/v1/users/",
+          data: {},
+          headers: {
+            Authorization: "Bearer" + access_token,
+          },
+          success: function (response) {},
+        });
+      }
+    </script>
   </head>
 
   <body>
@@ -24,11 +47,13 @@
         <div class="sign-up">
           <button onclick="location.href='/sign-up'">회원가입</button>
         </div>
+        <!-- <div class="profile-name">
+          여기 로그인 했을때 "xxx님 반갑습니다." 만들어주세요
+        </div> -->
       </div>
     </div>
     <div class="main-div">
       <div class="restaurant-list">
-      
         <div class="restaurant-info-mini">
           <img class="restaurant-img-mini" src="../static/jungle-icon.png" />
           <div class="info-mini">
@@ -98,11 +123,9 @@
             <div class="mini-rating-jungle">정글별점 ★3.5</div>
           </div>
         </div>
-
       </div>
 
       <div class="restaurant-info">
-
         <div class="restaurant-info-card">
           <div class="detail-wrap">
             <img class="detail-image" src="../static/jungle-icon.png" />
@@ -140,50 +163,47 @@
               <span id="rate_3" onclick="rate3()"></span>
               <span id="rate_4" onclick="rate4()"></span>
               <span id="rate_5" onclick="rate5()"></span>
-            </div>            
+            </div>
             <textarea id="" cols="30" rows="4"></textarea>
             <button>등록</button>
           </div>
 
           <div class="review-list">
-            <hr>
+            <hr />
             <div class="review-card">
               <div class="review-name">홍길동</div>
               <div class="review-text">
-                최고의 맛집이에요~!!<br>
+                최고의 맛집이에요~!!<br />
                 15분을 걸어가서 먹을 가치가 있는 맛집입니다.
               </div>
             </div>
-            <hr>
+            <hr />
             <div class="review-card">
               <div class="review-name">홍길동</div>
               <div class="review-text">
-                최고의 맛집이에요~!!<br>
+                최고의 맛집이에요~!!<br />
                 15분을 걸어가서 먹을 가치가 있는 맛집입니다.
               </div>
             </div>
-            <hr>
+            <hr />
             <div class="review-card">
               <div class="review-name">홍길동</div>
               <div class="review-text">
-                최고의 맛집이에요~!!<br>
+                최고의 맛집이에요~!!<br />
                 15분을 걸어가서 먹을 가치가 있는 맛집입니다.
               </div>
             </div>
-            <hr>
+            <hr />
             <div class="review-card">
               <div class="review-name">홍길동</div>
               <div class="review-text">
-                최고의 맛집이에요~!!<br>
+                최고의 맛집이에요~!!<br />
                 15분을 걸어가서 먹을 가치가 있는 맛집입니다.
               </div>
             </div>
           </div>
-
         </div>
-
       </div>
-
     </div>
   </body>
 </html>

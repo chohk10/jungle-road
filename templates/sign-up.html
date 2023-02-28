@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <script
-      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"
+      integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
       crossorigin="anonymous"
     ></script>
+
     <title>정글로드</title>
     <link href="../static/css/sign-up.css" rel="stylesheet" />
     <script>
-      let idReg = /^d[0-9]{4}$/;
+      let idReg1 = /^d\d{4}$/;
+      let idReg2 = /^D\d{4}$/;
       let pwReg = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
       function isValidID(id) {
-        console.log(id);
-        if (!idReg.test(id)) {
+        if (!idReg1.test(id) && !idReg2.test(id)) {
           $(".warning-msg-id").text("ID가 양식에 맞지 않습니다.");
           return false;
         } else {
@@ -27,6 +27,7 @@
           return true;
         }
       }
+
       function isValidPW(pw) {
         if (!pwReg.test(pw)) {
           $(".warning-msg-pw").text("비밀번호가 양식에 맞지 않습니다.");
@@ -37,7 +38,6 @@
         }
       }
       function isCheckPW(pw, pwCheck) {
-        console.log(pw, pwCheck);
         if (pw !== pwCheck) {
           $(".warning-msg-pw-check").text(
             "비밀번호 입력값이 동일하지 않습니다."
@@ -49,25 +49,35 @@
         }
       }
 
-      function validSignUp() {
+      function signUp() {
+        let name = $("#name").val();
         let id = $("#username").val();
         let pw = $("#password").val();
         let pwCheck = $("#password-check").val();
         let validID = isValidID(id);
         let validPW = isValidPW(pw);
         let checkPW = isCheckPW(pw, pwCheck);
+
         if (validID && validPW && checkPW) {
-          alert("회원가입에 성공하셨습니다.");
-          $(".sign-up-form").submit();
-          window.location.href =
-            "http://127.0.0.1:5500/templates/mainpage.html";
+          $.ajax({
+            type: "POST",
+            url: "/api/v1/users",
+            data: { name: name, username: id, password: pw },
+            error: function (response) {
+              alert("이미 존재하는 학번입니다. 다시 시도해주세요.");
+            },
+            success: function (result) {
+              alert("회원가입에 성공하셨습니다.");
+              location.replace("/sign-in");
+            },
+          });
         }
       }
     </script>
   </head>
   <body>
     <div class="container">
-      <form
+      <div
         class="sign-up-form"
         name="sign-up-from"
         action="/api/v1/users"
@@ -91,7 +101,6 @@
           placeholder="출입증 밑에 적혀있는 5글자"
           required
         />
-
         <label for="password">비밀번호</label>
         <p class="warning-msg-pw" style="margin: 0; color: red"></p>
         <input
@@ -110,9 +119,8 @@
           name="password-check"
           required
         />
-
-        <button type="button" onclick="validSignUp()">회원가입</button>
-      </form>
+        <button type="submit" onclick="signUp()">회원가입</button>
+      </div>
     </div>
   </body>
 </html>
