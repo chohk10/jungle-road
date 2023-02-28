@@ -1,4 +1,3 @@
-from flask_cors import CORS, cross_origin
 from cgitb import text
 from lib2to3.pgen2 import driver
 from bson import ObjectId
@@ -17,7 +16,6 @@ import datetime
 import hashlib
 
 app = Flask(__name__)
-CORS(app)
 jwt = JWTManager(app)  # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = 'team5SecretKey'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(
@@ -107,13 +105,14 @@ def loginForm():
 
 @app.route("/api/v1/login", methods=["POST"])
 def login():
-    login_details = request.get_json()  # Getting the login Details from payload
+    username = request.form['username']
+    password = request.form['password']
     # Check if user exists in the databas
-    user_from_db = db.users.find_one({'username': login_details['username']})
+    user_from_db = db.users.find_one({'username': username})
     if user_from_db:  # If user exists
         # Check if password is correct
         encrpted_password = hashlib.sha256(
-            login_details['password'].encode("utf-8")).hexdigest()
+            password.encode("utf-8")).hexdigest()
         if encrpted_password == user_from_db['password']:
             # Identity can be any data that is json serializable
             access_token = create_access_token(
@@ -121,7 +120,7 @@ def login():
             refresh_token = create_refresh_token(
                 identity=user_from_db['username'])  # Create JWT Refresh Token
             # Return Token
-            return jsonify(access_token=access_token, refresh_token=refresh_token), 200
+            return jsonify({'access_token':access_token, 'refresh_token':refresh_token}), 200
     return jsonify({'msg': 'The username or password is incorrect'}), 401
 
 
