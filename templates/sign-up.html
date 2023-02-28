@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <title>정글로드</title>
+    <link href="../static/css/sign-up.css" rel="stylesheet" />
+    <script>
+      let idReg = /^d[0-9]{4}$/;
+      let pwReg = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$/;
+      function isValidID(id) {
+        console.log(id);
+        if (!idReg.test(id)) {
+          $(".warning-msg-id").text("ID가 양식에 맞지 않습니다.");
+          return false;
+        } else {
+          $(".warning-msg-id").text("");
+          return true;
+        }
+      }
+      function isValidPW(pw) {
+        if (!pwReg.test(pw)) {
+          $(".warning-msg-pw").text("비밀번호가 양식에 맞지 않습니다.");
+          return false;
+        } else {
+          $(".warning-msg-pw").text("");
+          return true;
+        }
+      }
+      function isCheckPW(pw, pwCheck) {
+        console.log(pw, pwCheck);
+        if (pw !== pwCheck) {
+          $(".warning-msg-pw-check").text(
+            "비밀번호 입력값이 동일하지 않습니다."
+          );
+          return false;
+        } else {
+          $(".warning-msg-pw-check").text("");
+          return true;
+        }
+      }
+
+      function validSignUp() {
+        let id = $("#username").val();
+        let pw = $("#password").val();
+        let pwCheck = $("#password-check").val();
+        let validID = isValidID(id);
+        let validPW = isValidPW(pw);
+        let checkPW = isCheckPW(pw, pwCheck);
+        if (validID && validPW && checkPW) {
+          alert("회원가입에 성공하셨습니다.");
+          $(".sign-up-form").submit();
+          window.location.href =
+            "http://127.0.0.1:5500/templates/mainpage.html";
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <form
+        class="sign-up-form"
+        name="sign-up-from"
+        action="/api/v1/users"
+        method="post"
+      >
+        <div class="sign-up-title">회원가입</div>
+        <label for="name">이름</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="실명을 사용해주세요."
+          required
+        />
+        <label for="username">ID (정글 학번)</label>
+        <p class="warning-msg-id" style="margin: 0; color: red"></p>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          placeholder="출입증 밑에 적혀있는 5글자"
+          required
+        />
+
+        <label for="password">비밀번호</label>
+        <p class="warning-msg-pw" style="margin: 0; color: red"></p>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="영문, 숫자 조합 8-16글자"
+          required
+        />
+
+        <label for="password">비밀번호 확인</label>
+        <p class="warning-msg-pw-check" style="margin: 0; color: red"></p>
+        <input
+          type="password"
+          id="password-check"
+          name="password-check"
+          required
+        />
+
+        <button type="button" onclick="validSignUp()">회원가입</button>
+      </form>
+    </div>
+  </body>
+</html>
