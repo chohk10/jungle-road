@@ -1,3 +1,4 @@
+from flask_cors import CORS, cross_origin
 from cgitb import text
 from lib2to3.pgen2 import driver
 from bson import ObjectId
@@ -14,7 +15,6 @@ from playwright.sync_api import Playwright, sync_playwright
 from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt_identity, jwt_required
 import datetime
 import hashlib
-from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 CORS(app)
@@ -121,10 +121,7 @@ def login():
             refresh_token = create_refresh_token(
                 identity=user_from_db['username'])  # Create JWT Refresh Token
             # Return Token
-            response = jsonify(access_token=access_token,
-                               refresh_token=refresh_token), 200
-            response.headers.add('Access-Control-Allow-Origin', '*')
-            return response
+            return jsonify(access_token=access_token, refresh_token=refresh_token), 200
     return jsonify({'msg': 'The username or password is incorrect'}), 401
 
 
@@ -160,7 +157,7 @@ def editReview():
     new_rating = patch_details['rating']
     new_text = patch_details['text']
     db.reviews.update_one({'_id': review_id}, {
-                          '$set': {"rating": new_rating, "text": new_text}})
+        '$set': {"rating": new_rating, "text": new_text}})
     return jsonify({'msg': 'Review edited successfully'}), 201
 
 
