@@ -1,3 +1,4 @@
+from flask_cors import CORS, cross_origin
 from cgitb import text
 from lib2to3.pgen2 import driver
 from bson import ObjectId
@@ -16,13 +17,21 @@ import datetime
 import hashlib
 
 app = Flask(__name__)
+CORS(app)
 jwt = JWTManager(app)  # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = 'team5SecretKey'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=30)  # lifespan of access token
-app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=1)  # lifespan of refresh token
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(
+    minutes=30)  # lifespan of access token
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(
+    days=1)  # lifespan of refresh token
 
 client = MongoClient('localhost', 27017)
 db = client.jungleroad
+
+
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 
 @app.route("/api/v1/restaurants/", methods=['GET'])
@@ -39,9 +48,11 @@ def home():
 @jwt_required(optional=True)
 def read(id):
     current_user = get_jwt_identity()
-    current_user_id = db.users.find_one({'username': current_user})['_id']
-    
-    restaurant_info = db.restaurants.find_one({'_id': ObjectId(id)}, {"_id": False})
+    if current_user != None:
+        current_user_id = db.users.find_one({'username': current_user})['_id']
+
+    restaurant_info = db.restaurants.find_one(
+        {'_id': ObjectId(id)}, {"_id": False})
     review_datas = list(db.reviews.find({'restaurantId': id}))
 
     review_ids = []
@@ -59,6 +70,7 @@ def read(id):
             is_mine.append(False)
     print(is_mine)
     return jsonify({"restaurant_info": restaurant_info, "review_ids": review_ids, "reviews": reviews, "is_mine": is_mine}), 200
+
 
 """ 
 TODO : 
@@ -86,6 +98,11 @@ def register():
 
 
 """ TODO : 프론트에서 암호화해서 보내준 비빌번호끼리 비교"""
+
+
+@app.route("/sign-in")
+def loginForm():
+    return render_template("sign-in.html")
 
 
 @app.route("/api/v1/login", methods=["POST"])
@@ -140,7 +157,7 @@ def editReview():
     new_rating = patch_details['rating']
     new_text = patch_details['text']
     db.reviews.update_one({'_id': review_id}, {
-                          '$set': {"rating": new_rating, "text": new_text}})
+        '$set': {"rating": new_rating, "text": new_text}})
     return jsonify({'msg': 'Review edited successfully'}), 201
 
 
