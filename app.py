@@ -132,7 +132,9 @@ def refresh():
 @app.route('/api/v1/reviews', methods=['POST'])
 @jwt_required()
 def postReview():
-    current_user = get_jwt_identity()
+    access_token = request.cookies.get('refresh_token_cookie')
+    current_user = decode_token(access_token)['sub']
+    # current_user = get_jwt_identity()
 
     user_id = db.users.find_one({'username': current_user})['_id']
 
