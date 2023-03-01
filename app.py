@@ -40,6 +40,7 @@ def index():
 
     return render_template("index.html", isLogedIn=isLogedIn, name=name, restaurants=restaurants)
 
+
 @app.route("/api/v1/restaurants/<id>", methods=['GET'])
 @jwt_required(optional=True)
 def read(id):
@@ -61,8 +62,8 @@ def read(id):
             is_mine = False
         review_data.append(is_mine)
         review_list.append(review_data)
-
-    return render_template('index.html', restaurant_info=restaurant_info, review_list=review_list)
+    print(restaurant_info)
+    return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
 
 
 # TODO : 프론트에서 암호화된 비밀번호를 받아 암호화된 비밀번호끼리 비교
