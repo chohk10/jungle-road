@@ -1,10 +1,11 @@
 from cgitb import text
+from ctypes import set_errno
 from lib2to3.pgen2 import driver
 from os import access
 from bson import ObjectId
 from pymongo import MongoClient
 from flask import Flask, render_template, jsonify, request, redirect, url_for
-from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required, set_access_cookies, set_refresh_cookies, verify_jwt_in_request
+from flask_jwt_extended import JWTManager, get_jti, get_jwt, create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required, set_access_cookies, set_refresh_cookies, unset_jwt_cookies, verify_jwt_in_request
 import datetime
 import hashlib
 
@@ -12,10 +13,13 @@ import hashlib
 app = Flask(__name__)
 jwt = JWTManager(app)  # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = 'team5SecretKey'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=30)
-app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=3)
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+
 
 client = MongoClient('localhost', 27017)
 db = client.jungleroad
@@ -135,6 +139,18 @@ def login():
 
             return resp, 200
     return jsonify({'msg': 'The username or password is incorrect'}), 401
+
+
+@app.route("/api/v1/logout", methods=["DELETE"])
+@jwt_required(optional=False)
+def logout():
+    jti = get_jwt()['jti']
+    blacklist.add(jti)
+
+    resp = jsonify({'login': True})
+    unset_jwt_cookies(resp)
+
+    return resp, 200
 
 
 @app.route('/api/v1/refresh', methods=['GET'])
