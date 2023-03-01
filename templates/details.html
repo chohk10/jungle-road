@@ -41,10 +41,12 @@
       <span id="rate_2" onclick="rateStars('2')">★</span>
       <span id="rate_1" onclick="rateStars('1')">★</span>
     </div>
-    <textarea id="review-text" cols="30" rows="4"></textarea>
-    <button button="submit" onclick="postReview('{{restaurant_info.id}}')">
-      등록
-    </button>
+    <div id="textareaContainer">
+      <textarea id="review-text" cols="30" rows="4"></textarea>
+      <button button="submit" onclick="postReview('{{restaurant_info.id}}')">
+        등록
+      </button>
+    </div>
   </div>
 
   <!-- TODO : 리뷰 리스트에 별점정보 추가하기 -->

@@ -71,6 +71,21 @@ a:hover, a:active {
     justify-content: center;
 }
 
+.sorting-btn{
+    width: 98%;
+    height: 5%;
+    padding-left: 2%;
+}
+
+.sorting-btn > button {
+    width: 40%;
+    margin: 0 4%;
+    background-color: white;
+    border-radius: 5px;
+    border : none;
+}
+
+
 /* Restaurant List */
 .restaurant-list{
     border-radius: 10px;
@@ -152,7 +167,7 @@ a:hover, a:active {
     /* border : blue solid; */
     border-radius: 10px;
     background-color: rgb(153,200,173);
-    width: 380px;
+    width: 500px;
     height: 96%;
     /* margin:5% 2.5%; */
     padding: 1% 1% 0 1%;
@@ -280,12 +295,12 @@ a:hover, a:active {
 textarea {
     border-radius: 10px;
     border: #dddcdc solid 2px;
-    width: 290px;
+    width: 400px;
     vertical-align: middle;
 }
-.review-post > button {
+.review-post > div > button {
     height: 66px;
-    width: 48px;
+    width: 60px;
     border-radius: 10px;
     border: #3ca474 2px solid;
     background-color: #3ca474;
@@ -299,9 +314,7 @@ textarea {
     background-color: #3ca474;
     color: white;
     font-size:10px;
-
 }
-
 hr {
     border: 0;
     height: 2px;
@@ -321,4 +334,7 @@ hr {
     padding: 20px 15px;
     margin-bottom: 10px;
     min-height: 38px;
+}
+.restaurant-info > pre {
+    color: rgb(192, 220, 204);
 }
