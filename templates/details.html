@@ -32,11 +32,11 @@
   <div class="review-post">
     <div class="review-post-title">나의 리뷰</div>
     <div id="rating_bar">
-      <span id="rate_1" onclick="rate1()"></span>
-      <span id="rate_2" onclick="rate2()"></span>
-      <span id="rate_3" onclick="rate3()"></span>
-      <span id="rate_4" onclick="rate4()"></span>
-      <span id="rate_5" onclick="rate5()"></span>
+      <span id="rate_5" onclick="rateStars('5')">★</span>
+      <span id="rate_4" onclick="rateStars('4')">★</span>
+      <span id="rate_3" onclick="rateStars('3')">★</span>
+      <span id="rate_2" onclick="rateStars('2')">★</span>
+      <span id="rate_1" onclick="rateStars('1')">★</span>
     </div>
     <textarea id="review-text" cols="30" rows="4"></textarea>
     <button button="submit" onclick="postReview('{{restaurant_info.id}}')">
@@ -52,6 +52,9 @@
     <div class="review-card" id="{{ review.id }}">
       <div class="review-name" style="position: relative; font-weight: 800%">
         {{ review.name }}
+        <span id="jungle-rating" style="color: #4bce32"
+          >★{{ review.rating }}
+        </span>
         <span class="review-time" style="font-size: 10px">
           {{ review.created.strftime('%Y-%m-%d %H:%M') }}
         </span>
@@ -76,15 +79,21 @@
 </div>
 
 <script>
-  function showReview(review_list) {
-    let reviewListDiv = document.getElementsByClassName("review-list")[0];
+  function rateStars(starNum) {
+    let rate = starNum;
+    for (let i = 1; i <= starNum; i++) {
+      $("#rate_" + i).css("color", "#4bce32");
+    }
+    for (let i = 5; i > starNum; i--) {
+      $("#rate_" + i).css("color", "#c7c5c5");
+    }
+    localStorage.setItem("rate", rate);
   }
 
   function postReview(restaurant_id) {
+    let rating = localStorage.getItem("rate");
     let text = $("#review-text").val();
     let restaurant = $(".detail-name").val();
-    // 수정필요
-    let rating = "4";
 
     if (text !== "") {
       $.ajax({

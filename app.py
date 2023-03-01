@@ -9,6 +9,7 @@ from flask_jwt_extended import JWTManager, get_jti, get_jwt, create_access_token
 import datetime
 import hashlib
 
+
 app = Flask(__name__)
 jwt = JWTManager(app)  # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = 'team5SecretKey'
@@ -67,7 +68,6 @@ def read(id):
     if (access_token != None):
         current_user = decode_token(access_token)['sub']
 
-    print(current_user)
     if current_user != '':
         current_user_id = db.users.find_one({'username': current_user})['_id']
 
@@ -87,7 +87,7 @@ def read(id):
         del review_data['_id']
         review_data['is_mine'] = is_mine
         review_list.append(review_data)
-    print(restaurant_info)
+
     return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
 
 
@@ -136,10 +136,10 @@ def login():
             resp = jsonify({'login': True})
             set_access_cookies(resp, access_token)
             set_refresh_cookies(resp, refresh_token)
-            print("액세스 토큰", access_token)
-            print("리프레시 토큰", refresh_token)
+
             return resp, 200
     return jsonify({'msg': 'The username or password is incorrect'}), 401
+
 
 @app.route("/api/v1/logout", methods=["DELETE"])
 @jwt_required(optional=False)
