@@ -64,8 +64,9 @@ def read(id):
             is_mine = True
         else:
             is_mine = False
-        review_data['is_mine']=is_mine
+        review_data['is_mine'] = is_mine
         review_list.append(review_data)
+
     return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
 
 
