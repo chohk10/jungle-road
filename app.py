@@ -62,22 +62,6 @@ def read(id):
         review_data.append(is_mine)
         review_list.append(review_data)
 
-    # review_ids = []
-    # for review_data in review_datas:
-    #     review_ids.append(str(review_data["_id"]))
-
-    # reviews = list(db.reviews.find({}, {"_id": False}))  # 해당 식당에 대한 정보 뿐 아니라 전체 리뷰 자료가 검색됨
-    # size = len(reviews)
-    # is_mine = []
-    # for review in reviews:
-    #     userId = review['userId']
-    #     print(userId, current_user_id)
-    #     if str(userId) == str(current_user_id):
-    #         is_mine.append(True)
-    #     else:
-    #         is_mine.append(False)
-
-    # return jsonify({"restaurant_info": restaurant_info, "review_ids": review_ids, "reviews": reviews, "is_mine": is_mine, 'size': size}), 200
     return render_template('index.html', restaurant_info=restaurant_info, review_list=review_list)
 
 
