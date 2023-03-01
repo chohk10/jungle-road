@@ -212,7 +212,9 @@ def editReview():
 @jwt_required()
 def deleteReview():
     review_id = request.form['reviewId']
-    db.reviews.delete_one({'_id': review_id})
+    print(review_id)
+    db.reviews.delete_one({'_id': ObjectId(review_id)})
+
     return jsonify({'msg': 'Review deleted successfully'}), 201
 
 

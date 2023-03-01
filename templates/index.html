@@ -54,7 +54,8 @@
       <div class="access-management">
         {% if isLogedIn == True %}
         <div class="profile-name">
-          {{ name }}님 반갑습니다. <button onclick="logout()">로그아웃</button>
+          <span style="font-weight: 700">{{ name }}님</span> 반갑습니다.
+          <button onclick="logout()">로그아웃</button>
         </div>
 
         {% elif isLogedIn == False %}

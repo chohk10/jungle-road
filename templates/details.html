@@ -27,7 +27,7 @@
 
 <div class="reviews">
   <div class="reviews-title">리뷰</div>
-  <div class="reviews-count">322</div>
+  <div class="reviews-count">{{ size }}</div>
 
   <div class="review-post">
     <div class="review-post-title">나의 리뷰</div>
@@ -68,6 +68,8 @@
     <div class="review-card">
       <div class="review-name" style="position: relative; font-weight: 800%">
         {{ review.name }}
+        <span id="jungle-rating" style="color: #4bce32"
+        >★{{ review.rating }}
         <span class="review-time" style="font-size: 10px">
           {{ review.created.strftime('%Y-%m-%d %H:%M') }}
         </span>
