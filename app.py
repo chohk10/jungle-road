@@ -32,26 +32,13 @@ def index():
                                  '_id': False})['name']
     else:
         isLogedIn = False
-    return render_template("index.html", isLogedIn=isLogedIn, name=name)
 
-
-@app.route("/api/v1/restaurants/", methods=['GET'])
-def home():
     restaurants = list(db.restaurants.find({}))
     for restaurant in restaurants:
         restaurant['id'] = str(restaurant['_id'])
         del restaurant['_id']
-        # restaurant.popitem('_id')
-        # restaurant.setdefault()
-    return render_template('index.html', restaurants=restaurants)
 
-    # datas = list(db.restaurants.find({}))
-    # ids = []
-    # for data in datas:
-    #     ids.append(str(data["_id"]))
-    # stores = list(db.restaurants.find({}, {"_id": False}))
-    # return jsonify({"ids": ids, "data": stores}), 200
-
+    return render_template("index.html", isLogedIn=isLogedIn, name=name, restaurants=restaurants)
 
 @app.route("/api/v1/restaurants/<id>", methods=['GET'])
 @jwt_required(optional=True)
