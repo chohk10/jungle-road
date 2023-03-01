@@ -28,6 +28,7 @@ def optional_jwt():
     except BaseException:
         return False
 
+
 @app.route("/")
 def index():
     if optional_jwt():
@@ -56,7 +57,10 @@ def read(id):
     if optional_jwt():
         current_user = get_jwt_identity()
         current_user_id = db.users.find_one({'username': current_user})['_id']
-        restaurant_info = db.restaurants.find_one({'_id': ObjectId(id)}, {"_id": False})
+
+        restaurant_info = db.restaurants.find_one(
+            {'_id': ObjectId(id)}, {"_id": False})
+        restaurant_info['id'] = id
         review_datas = list(db.reviews.find({'restaurantId': id}))
         review_list = []
         for review_data in review_datas:
@@ -65,9 +69,15 @@ def read(id):
                 is_mine = True
             else:
                 is_mine = False
+            review_data['id'] = str(review_data['_id'])
+            del review_data['_id']
             review_data['is_mine'] = is_mine
             review_list.append(review_data)
+
+            print(review_list)
+
         return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
+
     else:
         # print('no_token')
         restaurant_info = []
@@ -140,8 +150,8 @@ def postReview():
     access_token = request.cookies.get('refresh_token_cookie')
     current_user = decode_token(access_token)['sub']
     # current_user = get_jwt_identity()
-
     user_id = db.users.find_one({'username': current_user})['_id']
+    name = db.users.find_one({'username': current_user})['name']
 
     restaurant = request.form['restaurant']
     rating = request.form['rating']
@@ -152,7 +162,7 @@ def postReview():
     review_text = text
     now = datetime.datetime.now()
     doc = {"userId": user_id, "rating": review_rating, "text": review_text,
-           "created": now, "restaurantId": current_restaurant}
+           "created": now, "restaurantId": current_restaurant, "name": name}
     db.reviews.insert_one(doc)
     return jsonify({'msg': 'Review posted successfully'}), 201
 

@@ -1,4 +1,4 @@
-<div class="restaurant-info-card">
+<div class="restaurant-info-card" id="{{ restaurant_info.id }}">
   <div class="detail-wrap">
     <img class="detail-image" src="{{ restaurant_info.images[0] }}" />
     <div class="detail-title">
@@ -38,44 +38,69 @@
       <span id="rate_4" onclick="rate4()"></span>
       <span id="rate_5" onclick="rate5()"></span>
     </div>
-    <textarea id="" cols="30" rows="4"></textarea>
-    <button>등록</button>
+    <textarea id="review-text" cols="30" rows="4"></textarea>
+    <button button="submit" onclick="postReview('{{restaurant_info.id}}')">
+      등록
+    </button>
   </div>
 
   <!-- TODO : 리뷰 리스트에 별점정보 추가하기 -->
 
   <div class="review-list">
     <hr />
-    <div class="review-card">
-      <div class="review-name">홍길동</div>
-      <div class="review-text">
-        최고의 맛집이에요~!!<br />
-        15분을 걸어가서 먹을 가치가 있는 맛집입니다.
+    {% for review in review_list|reverse %} {% if review.is_mine == True %}
+    <div class="review-card" id="{{ review.id }}">
+      <div class="review-name" style="position: relative; font-weight: 800%">
+        {{ review.name }}
+        <span class="review-time" style="font-size: 10px">
+          {{ review.created.strftime('%Y-%m-%d %H:%M') }}
+        </span>
+        <button type="button">삭제</button>
       </div>
+      <div class="review-text">{{ review.text }}</div>
     </div>
-    <hr />
+    {% elif review.is_mine ==False %}
     <div class="review-card">
-      <div class="review-name">홍길동</div>
-      <div class="review-text">
-        최고의 맛집이에요~!!<br />
-        15분을 걸어가서 먹을 가치가 있는 맛집입니다.
+      <div class="review-name">
+        {{ review.name }}
+        <span class="review-time" style="font-size: 10px">
+          {{ review.created.strftime('%Y-%m-%d %H:%M') }}
+        </span>
       </div>
+
+      <div class="review-text">{{ review.text }}</div>
     </div>
-    <hr />
-    <div class="review-card">
-      <div class="review-name">홍길동</div>
-      <div class="review-text">
-        최고의 맛집이에요~!!<br />
-        15분을 걸어가서 먹을 가치가 있는 맛집입니다.
-      </div>
-    </div>
-    <hr />
-    <div class="review-card">
-      <div class="review-name">홍길동</div>
-      <div class="review-text">
-        최고의 맛집이에요~!!<br />
-        15분을 걸어가서 먹을 가치가 있는 맛집입니다.
-      </div>
-    </div>
+    {% endif %} {% endfor %}
   </div>
 </div>
+
+<script>
+  function showReview(review_list) {
+    let reviewListDiv = document.getElementsByClassName("review-list")[0];
+  }
+
+  function postReview(restaurant_id) {
+    let text = $("#review-text").val();
+    let restaurant = $(".detail-name").val();
+    // 수정필요
+    let rating = "4";
+
+    if (text !== "") {
+      $.ajax({
+        type: "POST",
+        url: "/api/v1/reviews",
+        data: { restaurant: restaurant_id, text: text, rating: rating },
+        error: function (response) {
+          alert("로그인이 필요한 서비스 입니다.");
+        },
+        success: function (response) {
+          let reviewListDiv = document.getElementsByClassName("review-list")[0];
+          alert("등록 완료!");
+          $("#review-text").val("");
+          $(".detail-name").val("");
+          moreInfoRestaurant(restaurant_id);
+        },
+      });
+    } else alert("리뷰를 입력해주세요.");
+  }
+</script>

@@ -287,6 +287,16 @@ textarea {
     background-color: #3ca474;
     color: white;
 }
+.review-name > button {
+    position: absolute;
+    right: 3%;
+    border-radius: 5px;
+    border: #3ca474 2px solid;
+    background-color: #3ca474;
+    color: white;
+    font-size:10px;
+}
+
 hr {
     border: 0;
     height: 2px;
