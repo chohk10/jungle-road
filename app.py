@@ -4,7 +4,7 @@ from os import access
 from bson import ObjectId
 from pymongo import MongoClient
 from flask import Flask, render_template, jsonify, request, redirect, url_for
-from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required, set_access_cookies, set_refresh_cookies, verify_jwt_in_request
+from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required, set_access_cookies, set_refresh_cookies
 import datetime
 import hashlib
 
@@ -13,30 +13,23 @@ jwt = JWTManager(app)  # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = 'team5SecretKey'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=30)
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
-app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 
 client = MongoClient('localhost', 27017)
 db = client.jungleroad
 
-
-# work around jwt_required_optional
-def optional_jwt():
-    try:
-        if verify_jwt_in_request():
-            return True
-    except BaseException:
-        return False
-
-
 @app.route("/")
+@jwt_required(optional=True)
 def index():
-    if optional_jwt():
-        current_user = get_jwt_identity()
-    else:
-        current_user = None
+    access_token = request.cookies.get('access_token_cookie')
+    current_user = ''
+    if (access_token != None):
+        current_user = decode_token(access_token)['sub']
+
+    # current_user = get_jwt_identity()
+    # print(current_user)
+
     name = ''
-    if current_user != None:
+    if current_user != '':
         isLogedIn = True
         name = db.users.find_one({'username': current_user}, {
                                  '_id': False})['name']
@@ -52,38 +45,35 @@ def index():
 
 
 @app.route("/api/v1/restaurants/<id>", methods=['GET'])
-# @jwt_required(optional=True)
+@jwt_required(optional=True)
 def read(id):
-    if optional_jwt():
-        current_user = get_jwt_identity()
+    access_token = request.cookies.get('refresh_token_cookie')
+    current_user = ''
+    if (access_token != None):
+        current_user = decode_token(access_token)['sub']
+
+    print(current_user)
+    if current_user != '':
         current_user_id = db.users.find_one({'username': current_user})['_id']
 
-        restaurant_info = db.restaurants.find_one(
-            {'_id': ObjectId(id)}, {"_id": False})
-        restaurant_info['id'] = id
-        review_datas = list(db.reviews.find({'restaurantId': id}))
-        review_list = []
-        for review_data in review_datas:
-            review_user_id = review_data['userId']
-            if str(review_user_id) == str(current_user_id):
-                is_mine = True
-            else:
-                is_mine = False
-            review_data['id'] = str(review_data['_id'])
-            del review_data['_id']
-            review_data['is_mine'] = is_mine
-            review_list.append(review_data)
+    restaurant_info = db.restaurants.find_one(
+        {'_id': ObjectId(id)}, {"_id": False})
 
-            print(review_list)
+    review_datas = list(db.reviews.find({'restaurantId': id}))
 
-        return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
+    review_list = []
+    for review_data in review_datas:
+        review_user_id = review_data['userId']
+        if str(review_user_id) == str(current_user_id):
+            is_mine = True
+        else:
+            is_mine = False
+        review_data['id'] = review_data['_id']
+        del review_data['_id']
+        review_data['is_mine'] = is_mine
+        review_list.append(review_data)
 
-    else:
-        # print('no_token')
-        restaurant_info = []
-        review_list = []
-        return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
-
+    return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
 
 # TODO : 프론트에서 암호화된 비밀번호를 받아 암호화된 비밀번호끼리 비교
 
