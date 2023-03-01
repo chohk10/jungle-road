@@ -1,7 +1,6 @@
-{% extends 'index.html' %} {% block details %}
 <div class="restaurant-info-card">
   <div class="detail-wrap">
-    <img class="detail-image" src="{{ restaurant_info.images }}" />
+    <img class="detail-image" src="{{ restaurant_info.images[0] }}" />
     <div class="detail-title">
       <div class="detail-name">{{ restaurant_info.name }}</div>
       <div class="detail-category">{{ restaurant_info.category }}</div>
@@ -80,4 +79,3 @@
     </div>
   </div>
 </div>
-{% endblock %}

@@ -20,7 +20,10 @@
           type: "GET",
           url: "/api/v1/restaurants/" + restaurantId,
           data: {},
-          success: function (respose) {},
+          success: function (response) {
+            $(".restaurant-info").empty();
+            $(".restaurant-info").append(response);
+          },
         });
       }
     </script>
@@ -73,7 +76,7 @@
 
       <!-- TODO : 아무런 동작이 없었을 때의 기본 화면 디자인하기 -->
 
-      <div class="restaurant-info">{% block details %} {% endblock %}</div>
+      <div class="restaurant-info"></div>
     </div>
   </body>
 </html>
