@@ -22,13 +22,15 @@ db = client.jungleroad
 @jwt_required(optional=True)
 def index():
     access_token = request.cookies.get('access_token_cookie')
-    current_user = decode_token(access_token)['sub']
+    current_user = ''
+    if (access_token != None):
+        current_user = decode_token(access_token)['sub']
 
     # current_user = get_jwt_identity()
     # print(current_user)
 
     name = ''
-    if current_user != None:
+    if current_user != '':
         isLogedIn = True
         name = db.users.find_one({'username': current_user}, {
                                  '_id': False})['name']
@@ -47,9 +49,12 @@ def index():
 @jwt_required(optional=True)
 def read(id):
     access_token = request.cookies.get('refresh_token_cookie')
-    current_user = decode_token(access_token)['sub']
+    current_user = ''
+    if (access_token != None):
+        current_user = decode_token(access_token)['sub']
+
     print(current_user)
-    if current_user != None:
+    if current_user != '':
         current_user_id = db.users.find_one({'username': current_user})['_id']
 
     restaurant_info = db.restaurants.find_one(
