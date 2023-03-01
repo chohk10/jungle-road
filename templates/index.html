@@ -7,10 +7,13 @@
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <title>정글로드</title>
-    <link href="../static/css/mainpage.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/mainpage.css') }}"
+    />
+    <!-- <link href="../static/css/mainpage.css" rel="stylesheet" /> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
-
       /* TODO : 음식점 리스트에서 음심적 이름을 클릭하는 경우 오른쪽 화면 html이 추가됨 */
 
       // $(document).ready(function () {
@@ -40,36 +43,40 @@
     <div class="menu-bar">
       <a href="/">
         <div class="main-logo">
-          <img src="../static/jungle-icon.png" />정글로드
+          <img
+            src="{{ url_for('static', filename='jungle-icon.png') }}"
+          />정글로드
         </div>
       </a>
       <div class="access-management">
         {% if isLogedIn == True %}
-          <div class="profile-name">
-            {{ name }}님 반갑습니다.
-          </div>
+        <div class="profile-name">{{ name }}님 반갑습니다.</div>
         {% elif isLogedIn == False %}
-          <div class="sign-in">
-            <button onclick="location.href='/sign-in'">로그인</button>
-          </div>
-          <div class="sign-up">
-            <button onclick="location.href='/sign-up'">회원가입</button>
-          </div>
+        <div class="sign-in">
+          <button onclick="location.href='/sign-in'">로그인</button>
+        </div>
+        <div class="sign-up">
+          <button onclick="location.href='/sign-up'">회원가입</button>
+        </div>
         {% endif %}
       </div>
     </div>
     <div class="main-div">
       <div class="restaurant-list">
-        {% for restautant in restaurants %}
-          <div class="restaurant-info-mini">
-            <img class="restaurant-img-mini" src="../static/jungle-icon.png" />
-            <div class="info-mini">
-              <div class="mini-name" onclick="">{{ restaurant.name }}</div>
-              <div class="mini-category">{{ restaurant.category }}</div>
-              <div class="mini-rating-naver">네이버별점 ★{{ restaurant.star }}</div>
-              <div class="mini-rating-jungle">정글별점 ★{{ restaurant.junglestar }}</div>
+        {% for restaurant in restaurants %}
+        <div class="restaurant-info-mini" id="{{ restaurant.id }}">
+          <img class="restaurant-img-mini" src="{{ restaurant.images[0] }}" />
+          <div class="info-mini">
+            <div class="mini-name" onclick="">{{ restaurant.name }}</div>
+            <div class="mini-category">{{ restaurant.category }}</div>
+            <div class="mini-rating-naver">
+              네이버별점 ★{{ restaurant.rating }}
+            </div>
+            <div class="mini-rating-jungle">
+              정글별점 ★{{ restaurant.junglerating }}
             </div>
           </div>
+        </div>
         {% endfor %}
       </div>
 

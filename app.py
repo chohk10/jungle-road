@@ -1,4 +1,5 @@
 from cgitb import text
+from curses import resetty
 from lib2to3.pgen2 import driver
 from bson import ObjectId
 from pymongo import MongoClient
@@ -25,10 +26,10 @@ def index():
     else:
         isLogedIn = False
     username = "D1234"  # derived from token
-    name = db.users.find_one({'username' : username},{'-id' : False})['name']
+    name = db.users.find_one({'username': username}, {'_id': False})['name']
     print(name)
     # profile = {'isLogedIn' : isLogedIn, 'username' : username, 'name' : name}
-    return render_template("index.html", isLogedIn = isLogedIn, name = name)
+    return render_template("index.html", isLogedIn=isLogedIn, name=name)
 
 
 @app.route("/api/v1/restaurants/", methods=['GET'])
@@ -39,7 +40,8 @@ def home():
         del restaurant['_id']
         # restaurant.popitem('_id')
         # restaurant.setdefault()
-    return render_template('index.html', restaurants = restaurants)
+    print(restaurants)
+    return render_template('index.html', restaurants=restaurants)
 
     # datas = list(db.restaurants.find({}))
     # ids = []
@@ -56,7 +58,8 @@ def read(id):
     if current_user != None:
         current_user_id = db.users.find_one({'username': current_user})['_id']
 
-    restaurant_info = db.restaurants.find_one({'_id': ObjectId(id)}, {"_id": False})
+    restaurant_info = db.restaurants.find_one(
+        {'_id': ObjectId(id)}, {"_id": False})
 
     review_datas = list(db.reviews.find({'restaurantId': id}))
 
@@ -65,7 +68,7 @@ def read(id):
         review_user_id = review_data['userId']
         if str(review_user_id) == str(current_user_id):
             is_mine = True
-        else :
+        else:
             is_mine = False
         review_data.append(is_mine)
         review_list.append(review_data)
@@ -86,7 +89,7 @@ def read(id):
     #         is_mine.append(False)
 
     # return jsonify({"restaurant_info": restaurant_info, "review_ids": review_ids, "reviews": reviews, "is_mine": is_mine, 'size': size}), 200
-    return render_template('index.html', restaurant_info = restaurant_info, review_list = review_list)
+    return render_template('index.html', restaurant_info=restaurant_info, review_list=review_list)
 
 
 # TODO : 프론트에서 암호화된 비밀번호를 받아 암호화된 비밀번호끼리 비교
@@ -97,10 +100,12 @@ def register():
     name = request.form['name']
     username = request.form['username']
     password = request.form['password']
-    password = hashlib.sha256(password.encode("utf-8")).hexdigest()  # encrpt password with hash
+    password = hashlib.sha256(password.encode(
+        "utf-8")).hexdigest()  # encrpt password with hash
     doc = db.users.find_one({"username": username})
     if not doc:  # check if username already exists
-        db.users.insert_one({'name': name, 'username': username, 'password': password})
+        db.users.insert_one(
+            {'name': name, 'username': username, 'password': password})
         return jsonify({'msg': 'User created successfully'}), 201
     else:
         return jsonify({'msg': 'Username already exists'}), 409
@@ -122,10 +127,13 @@ def login():
     password = request.form['password']
     user_from_db = db.users.find_one({'username': username})
     if user_from_db:
-        encrpted_password = hashlib.sha256(password.encode("utf-8")).hexdigest()  # verify password
+        encrpted_password = hashlib.sha256(
+            password.encode("utf-8")).hexdigest()  # verify password
         if encrpted_password == user_from_db['password']:
-            access_token = create_access_token(identity=user_from_db['username'])  # access token
-            refresh_token = create_refresh_token(identity=user_from_db['username'])  # refresh token
+            access_token = create_access_token(
+                identity=user_from_db['username'])  # access token
+            refresh_token = create_refresh_token(
+                identity=user_from_db['username'])  # refresh token
             return jsonify({'access_token': access_token, 'refresh_token': refresh_token}), 200
     return jsonify({'msg': 'The username or password is incorrect'}), 401
 
