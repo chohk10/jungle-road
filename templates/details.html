@@ -68,6 +68,8 @@
     <div class="review-card">
       <div class="review-name" style="position: relative; font-weight: 800%">
         {{ review.name }}
+        <span id="jungle-rating" style="color: #4bce32"
+        >★{{ review.rating }}
         <span class="review-time" style="font-size: 10px">
           {{ review.created.strftime('%Y-%m-%d %H:%M') }}
         </span>
