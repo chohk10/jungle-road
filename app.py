@@ -4,7 +4,7 @@ from os import access
 from bson import ObjectId
 from pymongo import MongoClient
 from flask import Flask, render_template, jsonify, request, redirect, url_for
-from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required, set_access_cookies, set_refresh_cookies
+from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required, set_access_cookies, set_refresh_cookies, verify_jwt_in_request
 import datetime
 import hashlib
 
@@ -13,23 +13,30 @@ jwt = JWTManager(app)  # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = 'team5SecretKey'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=30)
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 
 client = MongoClient('localhost', 27017)
 db = client.jungleroad
 
+
+# work around jwt_required_optional
+def optional_jwt():
+    try:
+        if verify_jwt_in_request():
+            return True
+    except BaseException:
+        return False
+
+
 @app.route("/")
-@jwt_required(optional=True)
 def index():
-    access_token = request.cookies.get('access_token_cookie')
-    current_user = ''
-    if (access_token != None):
-        current_user = decode_token(access_token)['sub']
-
-    # current_user = get_jwt_identity()
-    # print(current_user)
-
+    if optional_jwt():
+        current_user = get_jwt_identity()
+    else:
+        current_user = None
     name = ''
-    if current_user != '':
+    if current_user != None:
         isLogedIn = True
         name = db.users.find_one({'username': current_user}, {
                                  '_id': False})['name']
@@ -49,6 +56,7 @@ def index():
 def read(id):
     access_token = request.cookies.get('refresh_token_cookie')
     current_user = ''
+    current_user_id = ''
     if (access_token != None):
         current_user = decode_token(access_token)['sub']
 
@@ -58,7 +66,7 @@ def read(id):
 
     restaurant_info = db.restaurants.find_one(
         {'_id': ObjectId(id)}, {"_id": False})
-
+    restaurant_info['id'] = id
     review_datas = list(db.reviews.find({'restaurantId': id}))
 
     review_list = []
@@ -72,8 +80,9 @@ def read(id):
         del review_data['_id']
         review_data['is_mine'] = is_mine
         review_list.append(review_data)
-
+    print(restaurant_info)
     return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
+
 
 # TODO : 프론트에서 암호화된 비밀번호를 받아 암호화된 비밀번호끼리 비교
 
