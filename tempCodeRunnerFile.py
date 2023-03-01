@@ -1,1 +1,2 @@
-t
+
+    review_text = text

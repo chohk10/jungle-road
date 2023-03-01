@@ -2,6 +2,7 @@ from cgitb import text
 from ctypes import set_errno
 from lib2to3.pgen2 import driver
 from os import access
+from pickle import OBJ
 from bson import ObjectId
 from pymongo import MongoClient
 from flask import Flask, render_template, jsonify, request, redirect, url_for
@@ -88,7 +89,7 @@ def read(id):
         review_data['is_mine'] = is_mine
         review_list.append(review_data)
 
-    return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list, size = len(review_list))
+    return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list, size=len(review_list))
 
 
 # TODO : 프론트에서 암호화된 비밀번호를 받아 암호화된 비밀번호끼리 비교
@@ -181,6 +182,18 @@ def postReview():
     doc = {"userId": user_id, "rating": review_rating, "text": review_text,
            "created": now, "restaurantId": current_restaurant, "name": name}
     db.reviews.insert_one(doc)
+
+    review_datas = list(db.reviews.find(
+        {'restaurantId': current_restaurant}, {'_id': False}))
+    sum = 0
+    for data in review_datas:
+        sum += int(data['rating'])
+
+    avg = round(sum / len(review_datas), 2)
+    print(avg)
+    print(current_restaurant)
+    db.restaurants.update_one({'_id': ObjectId(current_restaurant)}, {
+        '$set': {'junglerating': avg}})
     return jsonify({'msg': 'Review posted successfully'}), 201
 
 
