@@ -189,8 +189,8 @@ a:hover, a:active {
 .detail-image {
     border : lightgray solid 1px;
     border-radius: 10px;
-    height : 140px;
-    width : 140px;
+    height : 200px;
+    width : 200px;
     margin: 15px auto 0 auto;
     display: block;
 }
@@ -295,10 +295,10 @@ a:hover, a:active {
 textarea {
     border-radius: 10px;
     border: #dddcdc solid 2px;
-    width: 400px;
+    width: 380px;
     vertical-align: middle;
 }
-.review-post > div > button {
+.review-post > button {
     height: 66px;
     width: 60px;
     border-radius: 10px;

@@ -40,6 +40,7 @@ def optional_jwt():
 
 @app.route("/")
 def index():
+
     if optional_jwt():
         current_user = get_jwt_identity()
     else:
@@ -53,6 +54,7 @@ def index():
         isLogedIn = False
 
     restaurants = list(db.restaurants.find({}))
+
     for restaurant in restaurants:
         restaurant['id'] = str(restaurant['_id'])
         del restaurant['_id']
@@ -213,8 +215,21 @@ def editReview():
 def deleteReview():
     review_id = request.form['reviewId']
     print(review_id)
+    restaurant_id = request.form['restaurantId']
+    review = db.reviews.find_one({'_id': ObjectId(review_id)})
+    print(review)
+    rating = review["rating"]
     db.reviews.delete_one({'_id': ObjectId(review_id)})
+    reviews = list(db.reviews.find({}))
+    total_size = len(reviews)
 
+    before_junglerating = db.restaurants.find_one(
+        {'_id': ObjectId(restaurant_id)})['junglerating']
+
+    after_junglerating = round(
+        before_junglerating - int(rating) / total_size, 2)
+    db.restaurants.update_one({'_id': restaurant_id}, {
+                              '$set': {'junglerating': after_junglerating}})
     return jsonify({'msg': 'Review deleted successfully'}), 201
 
 
