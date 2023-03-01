@@ -88,7 +88,7 @@ def read(id):
         review_data['is_mine'] = is_mine
         review_list.append(review_data)
 
-    return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
+    return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list, size = len(review_list))
 
 
 # TODO : 프론트에서 암호화된 비밀번호를 받아 암호화된 비밀번호끼리 비교
