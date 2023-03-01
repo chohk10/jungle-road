@@ -22,7 +22,7 @@ app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 
 
-client = MongoClient('mongodb://test:test@43.201.85.103', 27017)
+client = MongoClient('localhost', 27017)
 db = client.jungleroad
 
 blacklist = set()
