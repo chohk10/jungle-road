@@ -1,1 +1,2 @@
-print(current_user)
+
+    review_text = text

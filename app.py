@@ -1,32 +1,49 @@
 from cgitb import text
+from ctypes import set_errno
 from lib2to3.pgen2 import driver
 from os import access
+from pickle import OBJ
 from bson import ObjectId
 from pymongo import MongoClient
 from flask import Flask, render_template, jsonify, request, redirect, url_for
-from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required, set_access_cookies, set_refresh_cookies
+from flask_jwt_extended import JWTManager, get_jti, get_jwt, create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required, set_access_cookies, set_refresh_cookies, unset_jwt_cookies, verify_jwt_in_request
 import datetime
 import hashlib
+
 
 app = Flask(__name__)
 jwt = JWTManager(app)  # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = 'team5SecretKey'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=30)
-app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=3)
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+
 
 client = MongoClient('localhost', 27017)
 db = client.jungleroad
 
+blacklist = set()
+
+# work around jwt_required_optional
+
+
+def optional_jwt():
+    try:
+        if verify_jwt_in_request():
+            return True
+    except BaseException:
+        return False
+
 
 @app.route("/")
-@jwt_required(optional=True)
 def index():
-    access_token = request.cookies.get('access_token_cookie')
-    current_user = decode_token(access_token)['sub']
-
-    # current_user = get_jwt_identity()
-    # print(current_user)
-
+    if optional_jwt():
+        current_user = get_jwt_identity()
+    else:
+        current_user = None
     name = ''
     if current_user != None:
         isLogedIn = True
@@ -47,14 +64,17 @@ def index():
 @jwt_required(optional=True)
 def read(id):
     access_token = request.cookies.get('refresh_token_cookie')
-    current_user = decode_token(access_token)['sub']
-    print(current_user)
-    if current_user != None:
+    current_user = ''
+    current_user_id = ''
+    if (access_token != None):
+        current_user = decode_token(access_token)['sub']
+
+    if current_user != '':
         current_user_id = db.users.find_one({'username': current_user})['_id']
 
     restaurant_info = db.restaurants.find_one(
         {'_id': ObjectId(id)}, {"_id": False})
-
+    restaurant_info['id'] = id
     review_datas = list(db.reviews.find({'restaurantId': id}))
 
     review_list = []
@@ -64,10 +84,13 @@ def read(id):
             is_mine = True
         else:
             is_mine = False
+        review_data['id'] = review_data['_id']
+        del review_data['_id']
         review_data['is_mine'] = is_mine
         review_list.append(review_data)
 
-    return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
+    return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list, size=len(review_list))
+
 
 # TODO : 프론트에서 암호화된 비밀번호를 받아 암호화된 비밀번호끼리 비교
 
@@ -114,10 +137,21 @@ def login():
             resp = jsonify({'login': True})
             set_access_cookies(resp, access_token)
             set_refresh_cookies(resp, refresh_token)
-            print("액세스 토큰", access_token)
-            print("리프레시 토큰", refresh_token)
+
             return resp, 200
     return jsonify({'msg': 'The username or password is incorrect'}), 401
+
+
+@app.route("/api/v1/logout", methods=["DELETE"])
+@jwt_required(optional=False)
+def logout():
+    jti = get_jwt()['jti']
+    blacklist.add(jti)
+
+    resp = jsonify({'login': True})
+    unset_jwt_cookies(resp)
+
+    return resp, 200
 
 
 @app.route('/api/v1/refresh', methods=['GET'])
@@ -134,8 +168,8 @@ def postReview():
     access_token = request.cookies.get('refresh_token_cookie')
     current_user = decode_token(access_token)['sub']
     # current_user = get_jwt_identity()
-
     user_id = db.users.find_one({'username': current_user})['_id']
+    name = db.users.find_one({'username': current_user})['name']
 
     restaurant = request.form['restaurant']
     rating = request.form['rating']
@@ -146,8 +180,20 @@ def postReview():
     review_text = text
     now = datetime.datetime.now()
     doc = {"userId": user_id, "rating": review_rating, "text": review_text,
-           "created": now, "restaurantId": current_restaurant}
+           "created": now, "restaurantId": current_restaurant, "name": name}
     db.reviews.insert_one(doc)
+
+    review_datas = list(db.reviews.find(
+        {'restaurantId': current_restaurant}, {'_id': False}))
+    sum = 0
+    for data in review_datas:
+        sum += int(data['rating'])
+
+    avg = round(sum / len(review_datas), 2)
+    print(avg)
+    print(current_restaurant)
+    db.restaurants.update_one({'_id': ObjectId(current_restaurant)}, {
+        '$set': {'junglerating': avg}})
     return jsonify({'msg': 'Review posted successfully'}), 201
 
 
@@ -166,7 +212,9 @@ def editReview():
 @jwt_required()
 def deleteReview():
     review_id = request.form['reviewId']
-    db.reviews.delete_one({'_id': review_id})
+    print(review_id)
+    db.reviews.delete_one({'_id': ObjectId(review_id)})
+
     return jsonify({'msg': 'Review deleted successfully'}), 201
 
 
