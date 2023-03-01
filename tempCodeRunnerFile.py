@@ -1,2 +1,2 @@
 
-    for review_data in review_datas:
+    return render_template("index.html", isLogedIn=isL

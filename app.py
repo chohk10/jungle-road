@@ -1,10 +1,9 @@
 from cgitb import text
-from curses import resetty
 from lib2to3.pgen2 import driver
 from bson import ObjectId
 from pymongo import MongoClient
 from flask import Flask, render_template, jsonify, request, redirect, url_for
-from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt_identity, jwt_required, set_access_cookies, set_refresh_cookies
 import datetime
 import hashlib
 
@@ -13,22 +12,26 @@ jwt = JWTManager(app)  # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = 'team5SecretKey'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=30)
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 
 client = MongoClient('localhost', 27017)
 db = client.jungleroad
 
 
 @app.route("/")
+@jwt_required(optional=True)
 def index():
-    getToken = "None"
-    if getToken != None:
+    current_user = get_jwt_identity()
+    print(current_user)
+
+    name = ''
+    if current_user != None:
         isLogedIn = True
+        name = db.users.find_one({'username': current_user}, {
+                                 '_id': False})['name']
     else:
         isLogedIn = False
-    username = "D1234"  # derived from token
-    name = db.users.find_one({'username': username}, {'_id': False})['name']
-    print(name)
-    # profile = {'isLogedIn' : isLogedIn, 'username' : username, 'name' : name}
     return render_template("index.html", isLogedIn=isLogedIn, name=name)
 
 
@@ -40,7 +43,6 @@ def home():
         del restaurant['_id']
         # restaurant.popitem('_id')
         # restaurant.setdefault()
-    print(restaurants)
     return render_template('index.html', restaurants=restaurants)
 
     # datas = list(db.restaurants.find({}))
@@ -134,7 +136,13 @@ def login():
                 identity=user_from_db['username'])  # access token
             refresh_token = create_refresh_token(
                 identity=user_from_db['username'])  # refresh token
-            return jsonify({'access_token': access_token, 'refresh_token': refresh_token}), 200
+            resp = jsonify({'login': True})
+            set_access_cookies(resp, access_token)
+            set_refresh_cookies(resp, refresh_token)
+            print("액세스 토큰", access_token)
+            print("리프레시 토큰", refresh_token)
+            return resp, 200
+            # return jsonify({'access_token': access_token, 'refresh_token': refresh_token}), 200
     return jsonify({'msg': 'The username or password is incorrect'}), 401
 
 
