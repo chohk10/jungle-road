@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from selenium import webdriver
 from bs4 import BeautifulSoup
 
-client = MongoClient('localhost', 27017)
+client = MongoClient('mongodb://test:test@43.201.85.103', 27017)
 db = client.jungleroad
 
 url = "https://m.map.naver.com/search2/search.naver?query=kaist%EB%AC%B8%EC%A7%80%EC%BA%A0%ED%8D%BC%EC%8A%A4%EB%A7%9B%EC%A7%91&sm=sug&style=v5#/list"

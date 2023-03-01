@@ -295,7 +295,7 @@ a:hover, a:active {
 textarea {
     border-radius: 10px;
     border: #dddcdc solid 2px;
-    width: 400px;
+    width: 380px;
     vertical-align: middle;
 }
 .review-post > div > button {
