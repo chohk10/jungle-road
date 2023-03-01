@@ -322,3 +322,6 @@ hr {
     margin-bottom: 10px;
     min-height: 38px;
 }
+.restaurant-info > pre {
+    color: rgb(192, 220, 204);
+}
