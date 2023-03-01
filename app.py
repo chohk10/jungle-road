@@ -13,8 +13,6 @@ jwt = JWTManager(app)  # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = 'team5SecretKey'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=30)
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
-# app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-# app.config['JWT_COOKIE_CSRF_PROTECT'] = False
 
 client = MongoClient('localhost', 27017)
 db = client.jungleroad
@@ -50,8 +48,6 @@ def index():
 def read(id):
     access_token = request.cookies.get('refresh_token_cookie')
     current_user = decode_token(access_token)['sub']
-    # print(payload)
-    # current_user = get_jwt_identity()
     print(current_user)
     if current_user != None:
         current_user_id = db.users.find_one({'username': current_user})['_id']
@@ -121,7 +117,6 @@ def login():
             print("액세스 토큰", access_token)
             print("리프레시 토큰", refresh_token)
             return resp, 200
-            # return jsonify({'access_token': access_token, 'refresh_token': refresh_token}), 200
     return jsonify({'msg': 'The username or password is incorrect'}), 401
 
 
