@@ -10,26 +10,29 @@
     <link href="../static/css/mainpage.css" rel="stylesheet" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
-      $(document).ready(function () {
-        access_token = localStorage.getItem("access_token");
-        if (access_token != null) {
-          // xxx님 반갑습니다 띄우기
-        } else {
-          // 로그인, 회원가입 버튼 띄우기
-        }
-      });
 
-      function profileName(access_token) {
-        $.ajax({
-          type: "GET",
-          url: "/api/v1/users/",
-          data: {},
-          headers: {
-            Authorization: "Bearer" + access_token,
-          },
-          success: function (response) {},
-        });
-      }
+      /* TODO : 음식점 리스트에서 음심적 이름을 클릭하는 경우 오른쪽 화면 html이 추가됨 */
+
+      // $(document).ready(function () {
+      //   access_token = localStorage.getItem("access_token");
+      //   if (access_token != null) {
+      //     // xxx님 반갑습니다 띄우기
+      //   } else {
+      //     // 로그인, 회원가입 버튼 띄우기
+      //   }
+      // });
+
+      // function profileName(access_token) {
+      //   $.ajax({
+      //     type: "GET",
+      //     url: "/api/v1/users/",
+      //     data: {},
+      //     headers: {
+      //       Authorization: "Bearer" + access_token,
+      //     },
+      //     success: function (response) {},
+      //   });
+      // }
     </script>
   </head>
 
@@ -41,89 +44,36 @@
         </div>
       </a>
       <div class="access-management">
-        <div class="sign-in">
-          <button onclick="location.href='/sign-in'">로그인</button>
-        </div>
-        <div class="sign-up">
-          <button onclick="location.href='/sign-up'">회원가입</button>
-        </div>
-        <!-- <div class="profile-name">
-          여기 로그인 했을때 "xxx님 반갑습니다." 만들어주세요
-        </div> -->
+        {% if isLogedIn == True %}
+          <div class="profile-name">
+            {{ name }}님 반갑습니다.
+          </div>
+        {% elif isLogedIn == False %}
+          <div class="sign-in">
+            <button onclick="location.href='/sign-in'">로그인</button>
+          </div>
+          <div class="sign-up">
+            <button onclick="location.href='/sign-up'">회원가입</button>
+          </div>
+        {% endif %}
       </div>
     </div>
     <div class="main-div">
       <div class="restaurant-list">
-        <div class="restaurant-info-mini">
-          <img class="restaurant-img-mini" src="../static/jungle-icon.png" />
-          <div class="info-mini">
-            <div class="mini-name">밥함께해</div>
-            <div class="mini-category">백반, 가정식</div>
-            <div class="mini-rating-naver">네이버별점 ★4.2</div>
-            <div class="mini-rating-jungle">정글별점 ★3.5</div>
+        {% for restautant in restaurants %}
+          <div class="restaurant-info-mini">
+            <img class="restaurant-img-mini" src="../static/jungle-icon.png" />
+            <div class="info-mini">
+              <div class="mini-name" onclick="">{{ restaurant.name }}</div>
+              <div class="mini-category">{{ restaurant.category }}</div>
+              <div class="mini-rating-naver">네이버별점 ★{{ restaurant.star }}</div>
+              <div class="mini-rating-jungle">정글별점 ★{{ restaurant.junglestar }}</div>
+            </div>
           </div>
-        </div>
-
-        <div class="restaurant-info-mini">
-          <img class="restaurant-img-mini" src="../static/jungle-icon.png" />
-          <div class="info-mini">
-            <div class="mini-name">밥함께함께해</div>
-            <div class="mini-category">백반, 가정식</div>
-            <div class="mini-rating-naver">네이버별점 ★4.2</div>
-            <div class="mini-rating-jungle">정글별점 ★3.5</div>
-          </div>
-        </div>
-
-        <div class="restaurant-info-mini">
-          <img class="restaurant-img-mini" src="../static/jungle-icon.png" />
-          <div class="info-mini">
-            <div class="mini-name">밥함께해</div>
-            <div class="mini-category">백반, 가정식</div>
-            <div class="mini-rating-naver">네이버별점 ★4.2</div>
-            <div class="mini-rating-jungle">정글별점 ★3.5</div>
-          </div>
-        </div>
-
-        <div class="restaurant-info-mini">
-          <img class="restaurant-img-mini" src="../static/jungle-icon.png" />
-          <div class="info-mini">
-            <div class="mini-name">밥함께해</div>
-            <div class="mini-category">백반, 가정식</div>
-            <div class="mini-rating-naver">네이버별점 ★4.2</div>
-            <div class="mini-rating-jungle">정글별점 ★3.5</div>
-          </div>
-        </div>
-
-        <div class="restaurant-info-mini">
-          <img class="restaurant-img-mini" src="../static/jungle-icon.png" />
-          <div class="info-mini">
-            <div class="mini-name">밥함께함께해</div>
-            <div class="mini-category">백반, 가정식</div>
-            <div class="mini-rating-naver">네이버별점 ★4.2</div>
-            <div class="mini-rating-jungle">정글별점 ★3.5</div>
-          </div>
-        </div>
-
-        <div class="restaurant-info-mini">
-          <img class="restaurant-img-mini" src="../static/jungle-icon.png" />
-          <div class="info-mini">
-            <div class="mini-name">밥함께해</div>
-            <div class="mini-category">백반, 가정식</div>
-            <div class="mini-rating-naver">네이버별점 ★4.2</div>
-            <div class="mini-rating-jungle">정글별점 ★3.5</div>
-          </div>
-        </div>
-
-        <div class="restaurant-info-mini">
-          <img class="restaurant-img-mini" src="../static/jungle-icon.png" />
-          <div class="info-mini">
-            <div class="mini-name">밥함께해</div>
-            <div class="mini-category">백반, 가정식</div>
-            <div class="mini-rating-naver">네이버별점 ★4.2</div>
-            <div class="mini-rating-jungle">정글별점 ★3.5</div>
-          </div>
-        </div>
+        {% endfor %}
       </div>
+
+      <!-- TODO : 아무런 동작이 없었을 때의 기본 화면 디자인하기 -->
 
       <div class="restaurant-info">
         <div class="restaurant-info-card">
@@ -167,6 +117,8 @@
             <textarea id="" cols="30" rows="4"></textarea>
             <button>등록</button>
           </div>
+
+          <!-- TODO : 리뷰 리스트에 별점정보 추가하기 -->
 
           <div class="review-list">
             <hr />

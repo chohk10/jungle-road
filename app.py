@@ -10,10 +10,8 @@ import hashlib
 app = Flask(__name__)
 jwt = JWTManager(app)  # initialize JWTManager
 app.config['JWT_SECRET_KEY'] = 'team5SecretKey'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(
-    minutes=30)  # lifespan of access token
-app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(
-    days=1)  # lifespan of refresh token
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=30)
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
 
 client = MongoClient('localhost', 27017)
 db = client.jungleroad
@@ -21,17 +19,34 @@ db = client.jungleroad
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    getToken = "None"
+    if getToken != None:
+        isLogedIn = True
+    else:
+        isLogedIn = False
+    username = "D1234"  # derived from token
+    name = db.users.find_one({'username' : username},{'-id' : False})['name']
+    print(name)
+    # profile = {'isLogedIn' : isLogedIn, 'username' : username, 'name' : name}
+    return render_template("index.html", isLogedIn = isLogedIn, name = name)
 
 
 @app.route("/api/v1/restaurants/", methods=['GET'])
 def home():
-    datas = list(db.restaurants.find({}))
-    ids = []
-    for data in datas:
-        ids.append(str(data["_id"]))
-    stores = list(db.restaurants.find({}, {"_id": False}))
-    return jsonify({"ids": ids, "data": stores}), 200
+    restaurants = list(db.restaurants.find({}))
+    for restaurant in restaurants:
+        restaurant['id'] = str(restaurant['_id'])
+        del restaurant['_id']
+        # restaurant.popitem('_id')
+        # restaurant.setdefault()
+    return render_template('index.html', restaurants = restaurants)
+
+    # datas = list(db.restaurants.find({}))
+    # ids = []
+    # for data in datas:
+    #     ids.append(str(data["_id"]))
+    # stores = list(db.restaurants.find({}, {"_id": False}))
+    # return jsonify({"ids": ids, "data": stores}), 200
 
 
 @app.route("/api/v1/restaurants/<id>", methods=['GET'])
@@ -41,56 +56,54 @@ def read(id):
     if current_user != None:
         current_user_id = db.users.find_one({'username': current_user})['_id']
 
-    restaurant_info = db.restaurants.find_one(
-        {'_id': ObjectId(id)}, {"_id": False})
+    restaurant_info = db.restaurants.find_one({'_id': ObjectId(id)}, {"_id": False})
+
     review_datas = list(db.reviews.find({'restaurantId': id}))
 
-    review_ids = []
+    review_list = []
     for review_data in review_datas:
-        review_ids.append(str(review_data["_id"]))
+        review_user_id = review_data['userId']
+        if str(review_user_id) == str(current_user_id):
+            is_mine = True
+        else :
+            is_mine = False
+        review_data.append(is_mine)
+        review_list.append(review_data)
 
-    reviews = list(db.reviews.find({}, {"_id": False}))
-    size = len(reviews)
-    is_mine = []
-    for review in reviews:
-        userId = review['userId']
-        print(userId, current_user_id)
-        if str(userId) == str(current_user_id):
-            is_mine.append(True)
-        else:
-            is_mine.append(False)
-    print(is_mine)
-    return jsonify({"restaurant_info": restaurant_info, "review_ids": review_ids, "reviews": reviews, "is_mine": is_mine, 'size': size}), 200
+    # review_ids = []
+    # for review_data in review_datas:
+    #     review_ids.append(str(review_data["_id"]))
+
+    # reviews = list(db.reviews.find({}, {"_id": False}))  # 해당 식당에 대한 정보 뿐 아니라 전체 리뷰 자료가 검색됨
+    # size = len(reviews)
+    # is_mine = []
+    # for review in reviews:
+    #     userId = review['userId']
+    #     print(userId, current_user_id)
+    #     if str(userId) == str(current_user_id):
+    #         is_mine.append(True)
+    #     else:
+    #         is_mine.append(False)
+
+    # return jsonify({"restaurant_info": restaurant_info, "review_ids": review_ids, "reviews": reviews, "is_mine": is_mine, 'size': size}), 200
+    return render_template('index.html', restaurant_info = restaurant_info, review_list = review_list)
 
 
-""" 
-TODO : 
-    - 기타 회원정보 입력받기 
-    - 프론트에서 암호화된 비밀번호를 받기 
-"""
+# TODO : 프론트에서 암호화된 비밀번호를 받아 암호화된 비밀번호끼리 비교
+
+
 @app.route("/api/v1/users", methods=["POST"])
 def register():
     name = request.form['name']
     username = request.form['username']
     password = request.form['password']
-
-    # Creating Hash of password to store in the database
-    password = hashlib.sha256(
-        password.encode("utf-8")).hexdigest()  # encrpt password
-    # Checking if user already exists
-    # check if user exist
+    password = hashlib.sha256(password.encode("utf-8")).hexdigest()  # encrpt password with hash
     doc = db.users.find_one({"username": username})
-    # If not exists than create one
-    if not doc:
-        # Creating user
-        db.users.insert_one(
-            {'name': name, 'username': username, 'password': password})
+    if not doc:  # check if username already exists
+        db.users.insert_one({'name': name, 'username': username, 'password': password})
         return jsonify({'msg': 'User created successfully'}), 201
     else:
         return jsonify({'msg': 'Username already exists'}), 409
-
-
-""" TODO : 프론트에서 암호화해서 보내준 비빌번호끼리 비교"""
 
 
 @app.route("/sign-up")
@@ -107,19 +120,12 @@ def loginForm():
 def login():
     username = request.form['username']
     password = request.form['password']
-    # Check if user exists in the databas
     user_from_db = db.users.find_one({'username': username})
-    if user_from_db:  # If user exists
-        # Check if password is correct
-        encrpted_password = hashlib.sha256(
-            password.encode("utf-8")).hexdigest()
+    if user_from_db:
+        encrpted_password = hashlib.sha256(password.encode("utf-8")).hexdigest()  # verify password
         if encrpted_password == user_from_db['password']:
-            # Identity can be any data that is json serializable
-            access_token = create_access_token(
-                identity=user_from_db['username'])  # Create JWT Access Token
-            refresh_token = create_refresh_token(
-                identity=user_from_db['username'])  # Create JWT Refresh Token
-            # Return Token
+            access_token = create_access_token(identity=user_from_db['username'])  # access token
+            refresh_token = create_refresh_token(identity=user_from_db['username'])  # refresh token
             return jsonify({'access_token': access_token, 'refresh_token': refresh_token}), 200
     return jsonify({'msg': 'The username or password is incorrect'}), 401
 
