@@ -1,23 +1,16 @@
-import requests
 from pymongo import MongoClient
-from playwright.sync_api import Playwright, sync_playwright
+from selenium import webdriver
 from bs4 import BeautifulSoup
 
 client = MongoClient('localhost', 27017)
 db = client.jungleroad
 
 url = "https://m.map.naver.com/search2/search.naver?query=kaist%EB%AC%B8%EC%A7%80%EC%BA%A0%ED%8D%BC%EC%8A%A4%EB%A7%9B%EC%A7%91&sm=sug&style=v5#/list"
-
-with sync_playwright() as playwright:
-    browser = playwright.chromium.launch(headless=True)
-    page = browser.new_page()
-    # page.set_viewport_size({"width" : 800, "height" : 600})
-    page.goto(url)
-    # page.wait_for_selector("div.item_info", timeout=50000)
-    page.wait_for_timeout(50000)
-    loaded_html = page.content()
-    soup = BeautifulSoup(loaded_html, "html.parser")
-    browser.close() 
+driver = webdriver.Chrome()
+driver.get(url)
+driver.implicitly_wait(50000)
+loaded_html = driver.page_source
+soup = BeautifulSoup(loaded_html, "html.parser")
 
 restaurants = soup.select('li._lazyImgContainer')
 
