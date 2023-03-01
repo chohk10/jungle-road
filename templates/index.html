@@ -27,6 +27,16 @@
           },
         });
       }
+      function logout() {
+        $.ajax({
+          type: "DELETE",
+          url: "/api/v1/logout",
+          data: {},
+          success: function (response) {
+            alert("로그아웃에 성공하였습니다!");
+          },
+        });
+      }
     </script>
   </head>
 
@@ -42,7 +52,7 @@
       <div class="access-management">
         {% if isLogedIn == True %}
         <div class="profile-name">
-          {{ name }}님 반갑습니다. <button onclick="">로그아웃</button>
+          {{ name }}님 반갑습니다. <button onclick="logout()">로그아웃</button>
         </div>
 
         {% elif isLogedIn == False %}
