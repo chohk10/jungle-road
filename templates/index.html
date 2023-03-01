@@ -21,8 +21,21 @@
           url: "/api/v1/restaurants/" + restaurantId,
           data: {},
           success: function (response) {
+            console.log(response);
             $(".restaurant-info").empty();
             $(".restaurant-info").append(response);
+          },
+        });
+      }
+
+      function logout() {
+        $.ajax({
+          type: "DELETE",
+          url: "/api/v1/logout",
+          data: {},
+          success: function (response) {
+            alert("로그아웃 성공!");
+            location.replace("/");
           },
         });
       }
@@ -40,7 +53,11 @@
       </a>
       <div class="access-management">
         {% if isLogedIn == True %}
-        <div class="profile-name">{{ name }}님 반갑습니다.</div>
+        <div class="profile-name">
+          <span style="font-weight: 700">{{ name }}님</span> 반갑습니다.
+          <button onclick="logout()">로그아웃</button>
+        </div>
+
         {% elif isLogedIn == False %}
         <div class="sign-in">
           <button onclick="location.href='/sign-in'">로그인</button>
