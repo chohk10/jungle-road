@@ -52,37 +52,36 @@ def index():
 
 
 @app.route("/api/v1/restaurants/<id>", methods=['GET'])
-# @jwt_required(optional=True)
+@jwt_required(optional=True)
 def read(id):
-    if optional_jwt():
-        current_user = get_jwt_identity()
+    access_token = request.cookies.get('refresh_token_cookie')
+    current_user = ''
+    current_user_id = ''
+    if (access_token != None):
+        current_user = decode_token(access_token)['sub']
+
+    print(current_user)
+    if current_user != '':
         current_user_id = db.users.find_one({'username': current_user})['_id']
 
-        restaurant_info = db.restaurants.find_one(
-            {'_id': ObjectId(id)}, {"_id": False})
-        restaurant_info['id'] = id
-        review_datas = list(db.reviews.find({'restaurantId': id}))
-        review_list = []
-        for review_data in review_datas:
-            review_user_id = review_data['userId']
-            if str(review_user_id) == str(current_user_id):
-                is_mine = True
-            else:
-                is_mine = False
-            review_data['id'] = str(review_data['_id'])
-            del review_data['_id']
-            review_data['is_mine'] = is_mine
-            review_list.append(review_data)
+    restaurant_info = db.restaurants.find_one(
+        {'_id': ObjectId(id)}, {"_id": False})
+    restaurant_info['id'] = id
+    review_datas = list(db.reviews.find({'restaurantId': id}))
 
-            print(review_list)
-
-        return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
-
-    else:
-        # print('no_token')
-        restaurant_info = []
-        review_list = []
-        return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
+    review_list = []
+    for review_data in review_datas:
+        review_user_id = review_data['userId']
+        if str(review_user_id) == str(current_user_id):
+            is_mine = True
+        else:
+            is_mine = False
+        review_data['id'] = review_data['_id']
+        del review_data['_id']
+        review_data['is_mine'] = is_mine
+        review_list.append(review_data)
+    print(restaurant_info)
+    return render_template('details.html', restaurant_info=restaurant_info, review_list=review_list)
 
 
 # TODO : 프론트에서 암호화된 비밀번호를 받아 암호화된 비밀번호끼리 비교
