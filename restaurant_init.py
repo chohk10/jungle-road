@@ -16,7 +16,6 @@ def restaurantsInit():
     db.restaurants.insert_one({'name': '스시안', 'rating': 4.42, 'junglerating': 0, 'category': '초밥, 롤', 'images': [
                               'https://search.pstatic.net/common/?autoRotate=true&type=w278_sharpen&src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20190324_90%2F1553355821287FJRSJ_JPEG%2FiD7jYUL3obP01Odk1sSEP1eZ.JPG.jpg'], 'address': '대전 유성구 전민로70번길 27', 'contact': '042-861-5084'})
 
-
 restaurantsInit()
 
 

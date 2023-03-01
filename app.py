@@ -17,7 +17,6 @@ app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
 client = MongoClient('localhost', 27017)
 db = client.jungleroad
 
-
 @app.route("/")
 @jwt_required(optional=True)
 def index():
@@ -69,6 +68,8 @@ def read(id):
             is_mine = True
         else:
             is_mine = False
+        review_data['id'] = review_data['_id']
+        del review_data['_id']
         review_data['is_mine'] = is_mine
         review_list.append(review_data)
 
@@ -139,8 +140,8 @@ def postReview():
     access_token = request.cookies.get('refresh_token_cookie')
     current_user = decode_token(access_token)['sub']
     # current_user = get_jwt_identity()
-
     user_id = db.users.find_one({'username': current_user})['_id']
+    name = db.users.find_one({'username': current_user})['name']
 
     restaurant = request.form['restaurant']
     rating = request.form['rating']
@@ -151,7 +152,7 @@ def postReview():
     review_text = text
     now = datetime.datetime.now()
     doc = {"userId": user_id, "rating": review_rating, "text": review_text,
-           "created": now, "restaurantId": current_restaurant}
+           "created": now, "restaurantId": current_restaurant, "name": name}
     db.reviews.insert_one(doc)
     return jsonify({'msg': 'Review posted successfully'}), 201
 
