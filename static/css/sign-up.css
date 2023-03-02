@@ -12,7 +12,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: fit-content; 
+  height: 100vh; 
 }
 
 .sign-up-form {
@@ -21,8 +21,7 @@ body {
   border-radius: 10px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   width: 20%;
-  height: 35%;
-  margin-top: 7%;
+  height: fit-content;
 }
 
 .sign-up-title {
