@@ -130,10 +130,9 @@
       data: { reviewId: review_id, restaurantId: restaurant_id },
       success: function (response) {
         let deleteReview = document.getElementsByClassName(review_id)[0];
-        console.log(deleteReview);
-        alert("삭제완료!");
         deleteReview.remove();
         moreInfoRestaurant(restaurant_id);
+        alert("삭제완료!");
       },
     });
   }

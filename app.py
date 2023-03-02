@@ -192,8 +192,7 @@ def postReview():
         sum += int(data['rating'])
 
     avg = round(sum / len(review_datas), 2)
-    print(avg)
-    print(current_restaurant)
+
     db.restaurants.update_one({'_id': ObjectId(current_restaurant)}, {
         '$set': {'junglerating': avg}})
     return jsonify({'msg': 'Review posted successfully'}), 201
@@ -214,10 +213,8 @@ def editReview():
 @jwt_required()
 def deleteReview():
     review_id = request.form['reviewId']
-    print(review_id)
     restaurant_id = request.form['restaurantId']
     review = db.reviews.find_one({'_id': ObjectId(review_id)})
-    print(review)
     rating = review["rating"]
     db.reviews.delete_one({'_id': ObjectId(review_id)})
     reviews = list(db.reviews.find({}))
