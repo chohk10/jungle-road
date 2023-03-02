@@ -19,7 +19,8 @@
       function login() {
         let username = $("#username").val();
         let password = $("#password").val();
-        $.ajax({
+	username = username.replace('d', 'D');
+	$.ajax({
           type: "POST",
           url: "/api/v1/login",
           data: { username: username, password: password },
